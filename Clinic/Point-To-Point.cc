@@ -20,13 +20,13 @@ int main (int argc, char *argv[])
   Stack.Install(imgScn);
   Stack.Install(imgWrk);
   Stack.Install(imgStr);
-  Stack.Install(routers);
 
   PointToPointHelper p2p;
 
   Ipv4AddressHelper address;
 
-  NodeContainer subNet1;    #-----------------SUBNET1-----------------#
+  #-----------------SUBNET1-----------------#
+  NodeContainer subNet1;
   subNet1.Add(imgScn.Get(0));
   subNet1.Add(imgStr.Get(0));
 
@@ -35,7 +35,8 @@ int main (int argc, char *argv[])
   address.SetBase("10.1.1.0","255.255.255.0");
   Ipv4InterfaceContainer subNet1Interfaces = address.Assign(subNet1Devices);
 
-  NodeContainer subNet2;    #-----------------SUBNET2-----------------#
+  #-----------------SUBNET2-----------------#
+  NodeContainer subNet2;
   subNet2.Add(imgStr.Get(0));
   subNet2.Add(imgWrk.Get(0));
 
