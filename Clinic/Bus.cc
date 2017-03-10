@@ -12,17 +12,13 @@ int main (int argc, char *argv[])
   Time::SetResolution(Time::NS);
 
    #Init Nodes
-  NodeContainer imgScn, imgWrk, imgStr, routers;
-  imgScn.Create(1);
-  imgWrk.Create(1);
-  imgStr.Create(1);
+  NodeContainer imgBus, routers;
+  imgBus.Create(3);
   routers.Create(1);
 
   #Init Stacks
   InternetStackHelper Stack;
-  Stack.Install(imgScn);
-  Stack.Install(imgWrk);
-  Stack.Install(imgStr);
+  Stack.Install(imgBus);
   Stack.Install(routers);
 
   #Init p2p (p2p)
@@ -35,10 +31,10 @@ int main (int argc, char *argv[])
 
   #-----------------SUBNET1-----------------#
   NodeContainer subNet1;
-  subNet1.Add(.Get(0));
-  subNet1.Add(.Get(0));
+  subNet1.Add(imgBus.Get(0));
+  subNet1.Add(routers.Get(0));
 
-  NetDeviceContainer subNet1Devices = p2p.Install(subNet1);
+  NetDeviceContainer subNet1Devices = csma.Install(subNet1);
 
   address.SetBase("10.1.1.0","255.255.255.0");
   Ipv4InterfaceContainer subNet1Interfaces = address.Assign(subNet1Devices);
