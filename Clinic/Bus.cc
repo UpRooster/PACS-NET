@@ -8,28 +8,28 @@ using namespace ns3;
 
 int main (int argc, char *argv[])
 {
-  # Clinic
+  // Clinic
   Time::SetResolution(Time::NS);
 
-   #Init Nodes
+  // Init Nodes
   NodeContainer imgBus, routers;
   imgBus.Create(3);
   routers.Create(1);
 
-  #Init Stacks
+  // Init Stacks
   InternetStackHelper Stack;
   Stack.Install(imgBus);
   Stack.Install(routers);
 
-  #Init p2p (p2p)
+  // Init p2p (p2p)
   PointToPointHelper p2p;
-  #Init Csma (BUS)
+  // Init Csma (BUS)
   CsmaHelper csma;
 
-  #Init Ipv4
+  // Init Ipv4
   Ipv4AddressHelper address;
 
-  #-----------------SUBNET1-----------------#
+  /*----------------SUBNET1----------------*/
   NodeContainer subNet1;
   subNet1.Add(imgBus.Get(0));
   subNet1.Add(routers.Get(0));

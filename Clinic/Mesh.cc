@@ -8,7 +8,7 @@ using namespace ns3;
 
 int main (int argc, char *argv[])
 {
-  # Clinic
+  // Clinic
   Time::SetResolution(Time::NS);
 
   NodeContainer imgScn, imgWrk, imgStr, routers;
@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
 
   Ipv4AddressHelper address;
 
-  #-----------------SUBNET1-----------------#
+  /*----------------SUBNET1----------------*/
   NodeContainer subNet1;
   subNet1.Add(imgScn.Get(0));
   subNet1.Add(imgStr.Get(0));
@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
   address.SetBase("10.1.1.0","255.255.255.0");
   Ipv4InterfaceContainer subNet1Interfaces = address.Assign(subNet1Devices);
 
-  #-----------------SUBNET2-----------------#
+  /*----------------SUBNET2----------------*/
   NodeContainer subNet2;
   subNet2.Add(imgStr.Get(0));
   subNet2.Add(imgWrk.Get(0));
@@ -45,7 +45,7 @@ int main (int argc, char *argv[])
   address.SetBase("10.1.2.0","255.255.255.0");
   Ipv4InterfaceContainer subNet2Interfaces = address.Assign(subNet2Devices);
 
-  #-----------------SUBNET3-----------------#
+  /*----------------SUBNET3----------------*/
   NodeContainer subNet3;
   subNet3.Add(imgScn.Get(0));
   subNet3.Add(imgWrk.Get(0));
