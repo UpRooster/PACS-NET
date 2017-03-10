@@ -13,9 +13,13 @@ The network begins with the TutNet file, which creates a small network of 2 node
 4. Ipv4 Address
 
 5. Subnet
+
   a) Nodes.Get
+
   b) Address.SetBase
+
   c) Devices (P2P,CSMA,Etc.)
+  
   d) Interfaces
 
 # References
