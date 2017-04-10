@@ -15,6 +15,8 @@ int main (int argc, char *argv[])
   // Clinic
   NS_LOG_UNCOND ("Starting..");
   Time::SetResolution(Time::NS);
+  LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
+  LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
   std::string animFile = "P2P8.xml" ;  // Name of file for animation output
@@ -48,36 +50,54 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("Creating Subnets");
   for(uint32_t i=0; i<subnetList.size()-1; ++i)
     {
-      NS_LOG_UNCOND ("Creating Subnet " << i);
+      //NS_LOG_UNCOND ("Creating Subnet " << i);
       subnetList[i] = NodeContainer (Nodes.Get(i), Nodes.Get(i+1));
     }
+  uint16_t NSize =  subnetList.size();
   NS_LOG_UNCOND ("Creating Devices");
   /*----------------DEVICE CREATION----------------*/
-  std::vector<NetDeviceContainer> deviceList (nNodes);
-  std::vector<Ipv4InterfaceContainer> subNetInterfaces (nNodes);
+  std::vector<NetDeviceContainer> deviceList (NSize);
+  std::vector<Ipv4InterfaceContainer> subNetInterfaces (NSize);
   for(uint32_t i=0; i<deviceList.size()-1; ++i)
     {
       subnetAddr.str("");
       deviceList[i] = p2p.Install (subnetList[i]);
       subnetAddr <<"10.1."<<i+1<<".0";
-      NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
+      //NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
       address.SetBase(subnetAddr.str().c_str (),"255.255.255.0");
       subNetInterfaces[i] = address.Assign(deviceList[i]);
     }
-  NS_LOG_UNCOND ("Creating Address/App");
+  uint16_t ISize =  NSize-1;
+  NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
+  NS_LOG_UNCOND ("Setting Server Port");
   /*----------------ADDRESS/APP CREATION----------------*/
-  Ipv4Address FS_Address(subNetInterfaces[1].GetAddress(1)); // Get Address of subNet Interfaces 1
-  uint16_t FS_Port = 4500;
+  UdpEchoServerHelper echoServer (9); // Set Server Port
+  NS_LOG_UNCOND ("Creating Server");
+  ApplicationContainer serverApps = echoServer.Install (Nodes.Get (nNodes-1)); // Set Server Node
+  serverApps.Start (Seconds (1.0)); // Set open time
+  serverApps.Stop (Seconds (10.0)); // Set close time
+  NS_LOG_UNCOND ("Creating Client Target");
+  UdpEchoClientHelper echoClient (subNetInterfaces[ISize-1].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
+  echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
+  echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
+  echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
+  NS_LOG_UNCOND ("Creating Client");
+  ApplicationContainer clientApps = echoClient.Install (Nodes.Get (0)); // Set Client Node
+  clientApps.Start (Seconds (2.0)); // Set open time
+  clientApps.Stop (Seconds (10.0)); // Set close time
 
-  UdpEchoClientHelper WKS1Echo(FS_Address, FS_Port);
-  ApplicationContainer WKS1EchoApp = WKS1Echo.Install(subnetList[1].Get (0)); // Install App
-  WKS1EchoApp.Start(Seconds(1.0));
-  WKS1EchoApp.Stop(Seconds(1.0));
+    /*Ipv4Address FS_Address(subNetInterfaces[1].GetAddress(1)); // Get Address of subNet Interfaces 1
+    uint16_t FS_Port = 4500;
 
-  UdpEchoServerHelper FS(FS_Port);
-  ApplicationContainer FS_App = FS.Install(subnetList[6].Get(0));
-  FS_App.Start(Seconds(1.0));
-  FS_App.Stop(Seconds(10.0));
+    UdpEchoClientHelper WKS1Echo(FS_Address, FS_Port);
+    ApplicationContainer WKS1EchoApp = WKS1Echo.Install(Nodes.Get (0)); // Install App
+    WKS1EchoApp.Start(Seconds(1.0));
+    WKS1EchoApp.Stop(Seconds(1.0));
+
+    UdpEchoServerHelper FS(FS_Port);
+    ApplicationContainer FS_App = FS.Install(subnetList[1].Get(0));
+    FS_App.Start(Seconds(1.0));
+    FS_App.Stop(Seconds(10.0));*/
   NS_LOG_UNCOND ("Creating Animation");
   /*-----------------ANIMATION CREATION----------------*/
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
