@@ -8,7 +8,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("P2P - 8 Nodes");
+NS_LOG_COMPONENT_DEFINE ("RING - 16 Nodes");
 
 int main (int argc, char *argv[])
 {
@@ -19,10 +19,11 @@ int main (int argc, char *argv[])
   LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
-  std::string animFile = "P2P8.xml" ;  // Name of file for animation output
+  std::string animFile = "RING16.xml" ;  // Name of file for animation output
 
   // Set Node Size
-  uint32_t nNodes = 8;
+  uint32_t nNodes = 16;
+  uint16_t timer = 60;
 
   CommandLine cmd;
   cmd.AddValue ("nNodes", "Nodes to place", nNodes); // Allow command line node setting
@@ -48,34 +49,42 @@ int main (int argc, char *argv[])
   /*----------------SUBNET CREATION----------------*/
   std::vector<NodeContainer> subnetList (nNodes);
   NS_LOG_UNCOND ("Creating Subnets");
-  for(uint32_t i=0; i<subnetList.size()-1; ++i)
+  for(uint32_t i=0; i<subnetList.size(); ++i)
     {
-      //NS_LOG_UNCOND ("Creating Subnet " << i);
-      subnetList[i] = NodeContainer (Nodes.Get(i), Nodes.Get(i+1));
+      if (i == subnetList.size()-1)
+      {
+        NS_LOG_UNCOND ("Closing Ring!");
+        subnetList[i] = NodeContainer (Nodes.Get(i), Nodes.Get(0));
+      }
+      else
+      {
+        NS_LOG_UNCOND ("Creating Subnet " << i);
+        subnetList[i] = NodeContainer (Nodes.Get(i), Nodes.Get(i+1));
+      }
     }
   uint16_t NSize =  subnetList.size();
   NS_LOG_UNCOND ("Creating Devices");
   /*----------------DEVICE CREATION----------------*/
-  std::vector<NetDeviceContainer> deviceList (NSize);
-  std::vector<Ipv4InterfaceContainer> subNetInterfaces (NSize);
-  for(uint32_t i=0; i<deviceList.size()-1; ++i)
+  std::vector<NetDeviceContainer> deviceList (nNodes);
+  std::vector<Ipv4InterfaceContainer> subNetInterfaces (nNodes);
+  for(uint32_t i=0; i<deviceList.size(); ++i)
     {
       subnetAddr.str("");
       deviceList[i] = p2p.Install (subnetList[i]);
       subnetAddr <<"10.1."<<i+1<<".0";
-      //NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
+      NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
       address.SetBase(subnetAddr.str().c_str (),"255.255.255.0");
       subNetInterfaces[i] = address.Assign(deviceList[i]);
     }
   uint16_t ISize =  NSize-1;
   NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
-  NS_LOG_UNCOND ("Setting Server Port");
+  NS_LOG_UNCOND ("Creating Address/App");
   /*----------------ADDRESS/APP CREATION----------------*/
   UdpEchoServerHelper echoServer (9); // Set Server Port
   NS_LOG_UNCOND ("Creating Server");
-  ApplicationContainer serverApps = echoServer.Install (Nodes.Get (nNodes-1)); // Set Server Node
+  ApplicationContainer serverApps = echoServer.Install (Nodes.Get (nNodes/2)); // Set Server Node
   serverApps.Start (Seconds (1.0)); // Set open time
-  serverApps.Stop (Seconds (10.0)); // Set close time
+  serverApps.Stop (Seconds (timer)); // Set close time
   NS_LOG_UNCOND ("Creating Client Target");
   UdpEchoClientHelper echoClient (subNetInterfaces[ISize/2].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
   echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
@@ -84,7 +93,7 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("Creating Client");
   ApplicationContainer clientApps = echoClient.Install (Nodes.Get (0)); // Set Client Node
   clientApps.Start (Seconds (2.0)); // Set open time
-  clientApps.Stop (Seconds (10.0)); // Set close time
+  clientApps.Stop (Seconds (timer)); // Set close time
 
     /*Ipv4Address FS_Address(subNetInterfaces[1].GetAddress(1)); // Get Address of subNet Interfaces 1
     uint16_t FS_Port = 4500;
@@ -102,11 +111,12 @@ int main (int argc, char *argv[])
   /*-----------------ANIMATION CREATION----------------*/
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
   AnimationInterface anim (animFile);
-  for(uint32_t i=0; i<subnetList.size(); ++i){
-    anim.SetConstantPosition (Nodes.Get(i), i, 0);
+  for(uint32_t i=0; i<subnetList.size(); ++i)
+  {
+    anim.SetConstantPosition (Nodes.Get(i), i, i*i);
   }
   /*----------------RUN SIMULATION----------------*/
-  Simulator::Stop (Seconds (10.0));
+  Simulator::Stop (Seconds (timer));
   Simulator::Run();
   std::cout << "Animation Trace file created:" << animFile.c_str ()<< std::endl;
   Simulator::Destroy();

@@ -8,7 +8,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("RING - 8 Nodes");
+NS_LOG_COMPONENT_DEFINE ("RING - 32 Nodes");
 
 int main (int argc, char *argv[])
 {
@@ -19,10 +19,11 @@ int main (int argc, char *argv[])
   LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
-  std::string animFile = "RING8.xml" ;  // Name of file for animation output
+  std::string animFile = "RING32.xml" ;  // Name of file for animation output
 
   // Set Node Size
-  uint32_t nNodes = 8;
+  uint32_t nNodes = 32;
+  uint16_t timer = 60;
 
   CommandLine cmd;
   cmd.AddValue ("nNodes", "Nodes to place", nNodes); // Allow command line node setting
@@ -83,7 +84,7 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("Creating Server");
   ApplicationContainer serverApps = echoServer.Install (Nodes.Get (nNodes/2)); // Set Server Node
   serverApps.Start (Seconds (1.0)); // Set open time
-  serverApps.Stop (Seconds (10.0)); // Set close time
+  serverApps.Stop (Seconds (timer)); // Set close time
   NS_LOG_UNCOND ("Creating Client Target");
   UdpEchoClientHelper echoClient (subNetInterfaces[ISize/2].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
   echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
@@ -92,7 +93,7 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("Creating Client");
   ApplicationContainer clientApps = echoClient.Install (Nodes.Get (0)); // Set Client Node
   clientApps.Start (Seconds (2.0)); // Set open time
-  clientApps.Stop (Seconds (10.0)); // Set close time
+  clientApps.Stop (Seconds (timer)); // Set close time
 
     /*Ipv4Address FS_Address(subNetInterfaces[1].GetAddress(1)); // Get Address of subNet Interfaces 1
     uint16_t FS_Port = 4500;
@@ -115,7 +116,7 @@ int main (int argc, char *argv[])
     anim.SetConstantPosition (Nodes.Get(i), i, i*i);
   }
   /*----------------RUN SIMULATION----------------*/
-  Simulator::Stop (Seconds (10.0));
+  Simulator::Stop (Seconds (timer));
   Simulator::Run();
   std::cout << "Animation Trace file created:" << animFile.c_str ()<< std::endl;
   Simulator::Destroy();
