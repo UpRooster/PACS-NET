@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
   serverApps.Start (Seconds (1.0)); // Set open time
   serverApps.Stop (Seconds (10.0)); // Set close time
   NS_LOG_UNCOND ("Creating Client Target");
-  UdpEchoClientHelper echoClient (subNetInterfaces[ISize-1].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
+  UdpEchoClientHelper echoClient (subNetInterfaces[ISize/2].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
   echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
   echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
   echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
