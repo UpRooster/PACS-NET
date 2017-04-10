@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
 
   // Set Node Size
   uint32_t nNodes = 8;
-  uint16_t timer = 60;
+  uint16_t timer = 6000;
 
   CommandLine cmd;
   cmd.AddValue ("nNodes", "Nodes to place", nNodes); // Allow command line node setting
@@ -74,6 +74,20 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
   NS_LOG_UNCOND ("Setting Server Port");
   /*----------------ADDRESS/APP CREATION----------------*/
+  // Client Creation
+  InetSocketAddress targetAddress (subNetInterfaces[ISize-1].GetAddress (1), 1000); // Client TARGET
+
+  OnOffHelper OnOffFactory ("ns3::UdpSocketFactory", targetAddress); // Create UDP Factory
+  ApplicationContainer clientOnOff = OnOffFactory.Install(Nodes.Get (0)); // Create factory with target on Node 0
+  clientOnOff.Start(Seconds(1.0)); // Factory start time
+  clientOnOff.Stop(Seconds(timer)); // Factory close time
+
+  PacketSinkHelper UdpSink ("ns3::UdpSocketFactory", targetAddress); // Server Sink Address
+  ApplicationContainer serverOnOff = UdpSink.Install(Nodes.Get (nNodes-1));
+  serverOnOff.Start(Seconds(0));
+  serverOnOff.Stop(Seconds(timer));
+
+  /* PING TEST - Adapted from NS3 example scripts
   UdpEchoServerHelper echoServer (9); // Set Server Port
 
   NS_LOG_UNCOND ("Creating Server");
@@ -90,7 +104,7 @@ int main (int argc, char *argv[])
   NS_LOG_UNCOND ("Creating Client");
   ApplicationContainer clientApps = echoClient.Install (Nodes.Get (0)); // Set Client Node
   clientApps.Start (Seconds (2.0)); // Set open time
-  clientApps.Stop (Seconds (timer)); // Set close time
+  clientApps.Stop (Seconds (timer)); // Set close time*/
 
   NS_LOG_UNCOND ("Creating Animation");
   /*-----------------ANIMATION CREATION----------------*/
