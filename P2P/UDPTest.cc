@@ -21,6 +21,7 @@ int main (int argc, char *argv[])
   // LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
+  Config::SetDefault ("ns3::OnOffApplication::MaxBytes", StringValue ("7516192768")); // Set MaxBytes to send to 7GB (Average size of PACS file)
   std::string animFile = "P2P8.xml" ;  // Name of file for animation output
 
   // Set Node Size

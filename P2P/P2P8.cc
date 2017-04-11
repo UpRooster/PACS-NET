@@ -15,10 +15,8 @@ int main (int argc, char *argv[])
   // Clinic
   NS_LOG_UNCOND ("Starting..");
   Time::SetResolution(Time::NS);
-  LogComponentEnable ("UdpClient", LOG_LEVEL_INFO);
-  LogComponentEnable ("UdpServer", LOG_LEVEL_INFO);
-  // LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
-  // LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
+  LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
+  LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
   std::string animFile = "P2P8.xml" ;  // Name of file for animation output

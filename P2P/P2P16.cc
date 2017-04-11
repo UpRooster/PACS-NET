@@ -45,6 +45,7 @@ int main (int argc, char *argv[])
   // Init Ipv4 + Address String
   Ipv4AddressHelper address;
   std::ostringstream subnetAddr;
+  
   NS_LOG_UNCOND ("Creating Subnet List");
   /*----------------SUBNET CREATION----------------*/
   std::vector<NodeContainer> subnetList (nNodes);
@@ -55,6 +56,7 @@ int main (int argc, char *argv[])
       subnetList[i] = NodeContainer (Nodes.Get(i), Nodes.Get(i+1));
     }
   uint16_t NSize =  subnetList.size();
+
   NS_LOG_UNCOND ("Creating Devices");
   /*----------------DEVICE CREATION----------------*/
   std::vector<NetDeviceContainer> deviceList (NSize);
@@ -70,6 +72,7 @@ int main (int argc, char *argv[])
     }
   uint16_t ISize =  NSize-1;
   NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
+
   NS_LOG_UNCOND ("Setting Server Port");
   /*----------------ADDRESS/APP CREATION----------------*/
   UdpEchoServerHelper echoServer (9); // Set Server Port
@@ -87,18 +90,6 @@ int main (int argc, char *argv[])
   clientApps.Start (Seconds (2.0)); // Set open time
   clientApps.Stop (Seconds (timer)); // Set close time
 
-    /*Ipv4Address FS_Address(subNetInterfaces[1].GetAddress(1)); // Get Address of subNet Interfaces 1
-    uint16_t FS_Port = 4500;
-
-    UdpEchoClientHelper WKS1Echo(FS_Address, FS_Port);
-    ApplicationContainer WKS1EchoApp = WKS1Echo.Install(Nodes.Get (0)); // Install App
-    WKS1EchoApp.Start(Seconds(1.0));
-    WKS1EchoApp.Stop(Seconds(1.0));
-
-    UdpEchoServerHelper FS(FS_Port);
-    ApplicationContainer FS_App = FS.Install(subnetList[1].Get(0));
-    FS_App.Start(Seconds(1.0));
-    FS_App.Stop(Seconds(10.0));*/
   NS_LOG_UNCOND ("Creating Animation");
   /*-----------------ANIMATION CREATION----------------*/
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
@@ -106,6 +97,7 @@ int main (int argc, char *argv[])
   for(uint32_t i=0; i<subnetList.size(); ++i){
     anim.SetConstantPosition (Nodes.Get(i), i, 0);
   }
+
   /*----------------RUN SIMULATION----------------*/
   Simulator::Stop (Seconds (timer));
   Simulator::Run();
