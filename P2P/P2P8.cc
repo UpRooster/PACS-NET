@@ -12,7 +12,6 @@ NS_LOG_COMPONENT_DEFINE ("P2P - 8 Nodes");
 
 int main (int argc, char *argv[])
 {
-  // Clinic
   NS_LOG_UNCOND ("Starting..");
   Time::SetResolution(Time::NS);
   LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
@@ -30,8 +29,8 @@ int main (int argc, char *argv[])
   cmd.AddValue ("animFile",  "Name for Animation File", animFile); // Allow command line animation file naming
 
   cmd.Parse (argc,argv);
-  NS_LOG_UNCOND ("Creating Nodes: " << nNodes);
   // Init Nodes
+  NS_LOG_UNCOND ("Creating Nodes: " << nNodes);
   NodeContainer Nodes;
   Nodes.Create(nNodes);
 
