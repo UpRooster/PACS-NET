@@ -93,7 +93,7 @@ int main (int argc, char *argv[])
   /*-----------------ANIMATION CREATION----------------*/
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
   AnimationInterface anim (animFile);
-  for(uint32_t i=0; i<subnetList.size(); ++i){
+  for(uint32_t i=0; i<subnetList.size(); i++){
     anim.SetConstantPosition (Nodes.Get(i), i, 0);
   }
   /*----------------RUN SIMULATION----------------*/
