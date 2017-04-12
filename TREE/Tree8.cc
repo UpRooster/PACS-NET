@@ -22,7 +22,7 @@ int main (int argc, char *argv[])
 
   // Set Node Size
   uint32_t nNodes = 8;
-  // uint16_t timer = 60;
+  uint16_t timer = 60;
 
   CommandLine cmd;
   cmd.AddValue ("nNodes", "Nodes to place", nNodes); // Allow command line node setting
@@ -38,14 +38,15 @@ int main (int argc, char *argv[])
   std::vector<NodeContainer> tLevel (nNodes/2); // ONLY WORKS WITH COMPLETE BINARY TREES I.E nNodes MUST BE A FACTOR OF 4 (4,8,16,32,64)
   // Create a uint32 var with value 1, used for tree level defining
   uint32_t levelSet = 1;
-  uint32_t channelCount,x,y,i,j,z,u;  // Create all loop variables & channelCount var
+  uint32_t channelCount,x,y,i,j,z;  // Create all loop variables & channelCount var
   i = nNodes/2;
   // Create routing tree from defined end-tree leaf size
-  while(i > 2){ // Divided by two so the first level is not the node level
-    i = i/2;
+  while(i >= 2){ // Divided by two so the first level is not the node level
     tLevel[levelSet].Create(i); // Create a new level, populate with nNodes /= 2
+    channelCount = channelCount + i*2; // Add up nodes in the tree, multiply by 2 for the leaf count
+    NS_LOG_UNCOND ("Level Size:" << i << " Level No#:" << levelSet << " Channel Count:" << channelCount);
+    i = i/2; // Divide by two to go up the tree one level
     levelSet = levelSet + 1; // Increase the level by 1 count
-    channelCount += i*2; // Add up nodes in the tree, multiply by 2 for the leaf count
   }
   /* This code creates the tree upwards, using the nNodes variable as a measure of how large the tree should be
     E.G
@@ -60,6 +61,8 @@ int main (int argc, char *argv[])
      This also misses out the root of the tree (The single node at the top), which must be created manually */
   tLevel[levelSet].Create(1); // Here we create the root of the tree with a single node
   channelCount += 2; // Add channels for root node
+  uint32_t rootSize = tLevel[levelSet].GetN();
+  NS_LOG_UNCOND ("ROOT Level Size:" << rootSize << " Level No#:" << levelSet << " Channel Count:" << channelCount);
 
   // Now that all nodes have been created, we need to index them to make access easier
   uint32_t nodeIndex = ns3::NodeList::GetNNodes();
@@ -73,32 +76,89 @@ int main (int argc, char *argv[])
   }
 
   // Create a nodecontainer to hold channels
-  std::vector<NodeContainer> subnetList (channelCount);
-
+  NS_LOG_UNCOND ("Creating Subnet List");
+  std::vector<NodeContainer> subnetList (channelCount-1);
+  NS_LOG_UNCOND ("Creating Subnets");
   // Create channels from the top of the tree to the bottom
-  for(z = 0; z < channelCount; z++){ // For each channel in channelCount
-    for(j = levelSet; j > 0; j--){  // For each level from the top (Root)
-      if(j == 1){
-        for(x = 0; x < tLevel[j].GetN(); x++){  // For each node in the current level (Penultimate level)
-          for(y = 0; y < nNodes-1; y++){ // For each node in nNodes (Bottom Level of Tree)
-            subnetList[z] = NodeContainer (tLevel[j].Get(x), Nodes.Get(y));
-          }
+  z = 0;
+  for(j = levelSet; j > 0; j--){  // For each level from the top (Root)
+    uint32_t levelB = 0;
+    if(j == 1){
+      for(x = 0; x < tLevel[j].GetN(); x++){  // For each node in the current level (Penultimate level)
+        for(y = 0; y < nNodes-1; y++){ // For each node in nNodes (Bottom Level of Tree)
+          NS_LOG_UNCOND ("BChannel#:" << z << " Level#:" << j << " from:" << x << " to " << y );
+          subnetList[z] = NodeContainer (tLevel[j].Get(x), Nodes.Get(y));
+          z++;
         }
       }
-      else{
-        for(x = 0; x < tLevel[j].GetN(); x++){  // For each node in the current level
-          for(y = 0; y < tLevel[j-1].GetN(); y++){ // For each node in the lower level
-            subnetList[z] = NodeContainer (tLevel[j].Get(x), tLevel[y].Get(y));
-          }
+    }
+    else{
+      for(x = 0; x < tLevel[j].GetN(); x++){  // For each node in the current level
+        for(y = 0; y < 2; y++){ // For each node in the lower level
+          NS_LOG_UNCOND ("Channel#:" << z << " Level#:" << j << " from:" << x << " to " << levelB );
+          subnetList[z] = NodeContainer (tLevel[j].Get(x), tLevel[j-1].Get(levelB));
+          z++;
+          levelB++;
         }
       }
     }
   }
 
-    // Init p2p (p2p)
-    PointToPointHelper p2p;
-  
-    // Init Ipv4 + Address String
-    Ipv4AddressHelper address;
-    std::ostringstream subnetAddr;
+  NS_LOG_UNCOND ("Creating P2P Helper");
+  // Init p2p (p2p)
+  PointToPointHelper p2p;
+
+  // Init Ipv4 + Address String
+  Ipv4AddressHelper address;
+  std::ostringstream subnetAddr;
+
+  uint16_t NSize =  subnetList.size();
+
+  NS_LOG_UNCOND ("Creating Devices");
+  std::vector<NetDeviceContainer> deviceList (NSize);
+  std::vector<Ipv4InterfaceContainer> subNetInterfaces (NSize);
+  for(uint32_t i=0; i<deviceList.size()-1; ++i)
+  {
+    subnetAddr.str("");
+    deviceList[i] = p2p.Install (subnetList[i]);
+    subnetAddr <<"10.1."<<i+1<<".0";
+    //NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
+    address.SetBase(subnetAddr.str().c_str (),"255.255.255.0");
+    subNetInterfaces[i] = address.Assign(deviceList[i]);
+  }
+
+  uint16_t ISize =  NSize-1;
+  NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
+  NS_LOG_UNCOND ("Setting Server Port");
+  /*----------------ADDRESS/APP CREATION----------------*/
+  UdpEchoServerHelper echoServer (9); // Set Server Port
+
+  NS_LOG_UNCOND ("Creating Server");
+  ApplicationContainer serverApps = echoServer.Install (Nodes.Get (nNodes-1)); // Set Server Node
+  serverApps.Start (Seconds (1.0)); // Set open time
+  serverApps.Stop (Seconds (timer)); // Set close time
+
+  NS_LOG_UNCOND ("Creating Client Target");
+  UdpEchoClientHelper echoClient (subNetInterfaces[ISize-1].GetAddress (1), 9); // Set Client Target with servers subNetInterfaces[i].GetAddress & Port
+  echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
+  echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
+  echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
+
+  NS_LOG_UNCOND ("Creating Client");
+  ApplicationContainer clientApps = echoClient.Install (Nodes.Get (0)); // Set Client Node
+  clientApps.Start (Seconds (2.0)); // Set open time
+  clientApps.Stop (Seconds (timer)); // Set close time
+
+  NS_LOG_UNCOND ("Creating Animation");
+  /*-----------------ANIMATION CREATION----------------*/
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  AnimationInterface anim (animFile);
+  for(uint32_t i=0; i<subnetList.size(); ++i){
+    anim.SetConstantPosition (Nodes.Get(i), i, 0);
+  }
+  /*----------------RUN SIMULATION----------------*/
+  Simulator::Stop (Seconds (timer));
+  Simulator::Run();
+  std::cout << "Animation Trace file created:" << animFile.c_str ()<< std::endl;
+  Simulator::Destroy();
 }
