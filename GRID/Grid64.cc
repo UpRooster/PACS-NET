@@ -33,8 +33,8 @@ int main (int argc, char *argv[])
   cmd.Parse (argc,argv);
   NS_LOG_UNCOND ("Creating Nodes: " << nNodes);
   // Init Nodes
-  NodeContainer Nodes;
-  Nodes.Create(nNodes);
+  // NodeContainer Nodes;
+  // Nodes.Create(nNodes);
 
   // Create grid dimensions
   uint32_t cols = (uint32_t)sqrt(nNodes);
@@ -68,7 +68,7 @@ int main (int argc, char *argv[])
   serverApps.Stop (Seconds (timer)); // Set close time
 
   NS_LOG_UNCOND ("Creating Client Target");
-  UdpEchoClientHelper echoClient (InetSocketAddress (grid.GetIpv4Address (rows-1,cols-1), 1000)); // Set Client Target with grid.GetIpv4Address (X,Y Dimensions) + Port
+  UdpEchoClientHelper echoClient (InetSocketAddress (grid.GetIpv4Address (rows-1,cols-1), 9)); // Set Client Target with grid.GetIpv4Address (X,Y Dimensions) + Port
   echoClient.SetAttribute ("MaxPackets", UintegerValue (1)); // Set sending data
   echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
   echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
