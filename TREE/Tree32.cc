@@ -8,7 +8,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("Tree - 8 Nodes");
+NS_LOG_COMPONENT_DEFINE ("Tree - 32 Nodes");
 
 int main (int argc, char *argv[])
 {
@@ -18,10 +18,10 @@ int main (int argc, char *argv[])
   LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
-  std::string animFile = "TREE8.xml" ;  // Name of file for animation output
+  std::string animFile = "TREE32.xml" ;  // Name of file for animation output
 
   // Set Node Size
-  uint32_t nNodes = 8;
+  uint32_t nNodes = 32;
   uint16_t timer = 60;
 
   CommandLine cmd;

@@ -20,7 +20,7 @@ int main (int argc, char *argv[])
   LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (1500)); // Limit of Ethernet
   Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("1000kb/s")); // 1Mb dataRate
-  std::string animFile = "Grid8.xml" ;  // Name of file for animation output
+  std::string animFile = "GRID8.xml" ;  // Name of file for animation output
 
   // Set Node Size
   uint32_t nNodes = 8;

@@ -153,9 +153,18 @@ int main (int argc, char *argv[])
   clientApps.Stop (Seconds (timer)); // Set close time
 
   NS_LOG_UNCOND ("Creating Animation");
+  NS_LOG_UNCOND ("Levels in Tree:" << levelSet);
   /*-----------------ANIMATION CREATION----------------*/
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
   AnimationInterface anim (animFile);
+  for(i=0; i<Nodes.GetN(); i++){ // Set the tree base
+    anim.SetConstantPosition (Nodes.Get(i), i, 0);
+  }
+  for(i=0; i<=levelSet; i++){ // For each level
+    for(j=0;j<tLevel[i].GetN();j++){ // For the size of current level
+      anim.SetConstantPosition (tLevel[i].Get(j), j, i);
+    }
+  }
   /*----------------RUN SIMULATION----------------*/
   Simulator::Stop (Seconds (timer));
   Simulator::Run();
