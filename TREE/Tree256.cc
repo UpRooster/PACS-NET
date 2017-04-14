@@ -120,14 +120,21 @@ int main (int argc, char *argv[])
   std::vector<NetDeviceContainer> deviceList (NSize);
   std::vector<Ipv4InterfaceContainer> subNetInterfaces (NSize);
   NS_LOG_UNCOND ("Creating Devices");
+  // Create variables for subnet control
+  uint32_t sb1=1,sb2=1;
   for(uint32_t i=0; i<deviceList.size(); ++i)
   {
     subnetAddr.str("");
     deviceList[i] = p2p.Install (subnetList[i]);
-    subnetAddr <<"10.1."<<i+1<<".0";
+    subnetAddr << "10." << sb1 << "." << sb2 << ".0";
     //NS_LOG_UNCOND ("Creating Address " << subnetAddr.str().c_str ());
     address.SetBase(subnetAddr.str().c_str(),"255.255.255.0");
     subNetInterfaces[i] = address.Assign(deviceList[i]);
+    sb2 = sb2+1;
+    if(sb2 == 255){
+      sb1 = sb1+1;
+      sb2 = 0;
+    }
   }
 
   uint16_t ISize =  NSize-1;
