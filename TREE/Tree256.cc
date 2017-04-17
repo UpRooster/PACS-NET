@@ -161,7 +161,7 @@ int main (int argc, char *argv[])
 
   // DEBUG : PRINT SUBNET COUNT
   uint16_t NSize =  subnetList.size();
-  NS_LOG_UNCOND ("SubnetListSize: "<< NSize);
+  // NS_LOG_UNCOND ("SubnetListSize: "<< NSize);
 
   // CREATE NET DEVICES
   NS_LOG_UNCOND ("Creating Devices");
@@ -174,7 +174,7 @@ int main (int argc, char *argv[])
   uint16_t ISize =  NSize-1;
 
   // DEBUG : PRINT DEVICE COUNT
-  NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
+  // NS_LOG_UNCOND ("DeviceListSize: "<< ISize);
 
   // CREATE APPLICATIONS FOR COMMUNICATION
   NS_LOG_UNCOND ("Setting Server Port");
