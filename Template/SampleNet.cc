@@ -25,23 +25,23 @@ using namespace ns3;
 int main (int argc, char *argv[])
 {
   Time::SetResolution (Time::NS);
-  
-  NodeContainer NODES;
-  NODES.Create(2);
-  
-  InternetStackHelper STACK;
-  STACK.Install(NODES);
-  
-  PointToPointHelper P2P;
-  
-  Ipv4AddressHelper ADDRESS;
-  ADDRESS.SetBase("10.1.1.0","255.255.255.0");
-  
-  NodeContainer SUBNET1;
-  SUBNET1.Add(NODES.Get(0));
-  SUBNET1.Add(NODES.Get(1));
-  
-  NetDeviceContainer SUBNET1DEVICES = P2P.Install(SUBNET1);
-  
-  Ipv4InterfaceContainer SUBNET1INTERFACES = ADDRESS.Assign(SUBNET1DEVICES);
+
+  NodeContainer NODES;  // Create a Node Container
+  NODES.Create(2);      // Define the Node Count
+
+  InternetStackHelper STACK;  // Create a stack helper object
+  STACK.Install(NODES);       // Create internet stacks on each node in NODES
+
+  PointToPointHelper P2P; // Create a point-to-point connection object
+
+  Ipv4AddressHelper ADDRESS;  // Create an IPv4 address object
+  ADDRESS.SetBase("10.1.1.0","255.255.255.0");  // Set the address base (Increments)
+
+  NodeContainer SUBNET1;      // Create the subnet/channel object
+  SUBNET1.Add(NODES.Get(0));  // Assign the first node
+  SUBNET1.Add(NODES.Get(1));  // Assign the second node
+
+  NetDeviceContainer SUBNET1DEVICES = P2P.Install(SUBNET1); // Assign a MAC to the subnet/channel
+
+  Ipv4InterfaceContainer SUBNET1INTERFACES = ADDRESS.Assign(SUBNET1DEVICES); // Assign addresses to devices in the channel
 }

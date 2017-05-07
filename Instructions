@@ -1,0 +1,16 @@
+STEPS:
+sudo apt-get update
+apt-get install gcc g++ python
+apt-get install gcc g++ python python-dev
+apt-get install qt4-dev-tools libqt4-dev
+apt-get install cmake libc6-dev libc6-dev-i386 g++-multilib0
+apt-get install gdb valgrind 
+
+Download:
+https://www.nsnam.org/release/ns-allinone-3.26.tar.bz2
+
+git clone https://github.com/UpRooster/PACS-NET.git
+
+Alternate: Memstick
+
+./waf --run scratch/FILENAME
